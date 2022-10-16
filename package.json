@@ -20,5 +20,6 @@
     "libsodium-wrappers": "^0.7.10",
     "opusscript": "^0.0.8"
   },
-  "description": "Start radio with @discordjs.voice && discord.js v14"
+  "description": "Start radio with @discordjs.voice && discord.js v14",
+  "homepage": "https://github.com/ZeleffOff/radio-discord.js#readme"
 }
