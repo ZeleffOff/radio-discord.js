@@ -12,12 +12,30 @@ Install with `npm`:
 $ npm install radio-discord.js
 ```
 
+Events
+------
+
+Désormais les events `loop` et `error` sont à votre disposition !
+Ils vous servent à vous avertir lors d'une reconnexion de la radio ou lors d'une erreur de lancement de la radio.
+
+# Utilisation
+```js
+const radio_discord = require("radio-discord.js");
+
+radio_discord.events.on("loop", data => {
+    console.log(data);
+});
+radio_discord.events.on("error", error => {
+    console.log(error);
+});
+```
+
 Stations
 --------
 
 Des stations sont a votre disposition. Il vous suffit d'utiliser la fonction `getStations` qui vous reverra un `Object - { name: "nom de la station", link: "lien de la station" }`
 
-Vous pouvez obtenir une station random en ajoutant `true` en tant que paramètre de la fonction `getStations`, pour obtenir une station radio aléatoire.
+Vous pouvez obtenir une station random en ajouter `true` en tant que paramètre de la fonction `getStations`, pour obtenir une station radio aléatoire.
 Par défaut, toutes les stations sont renvoyées.
 
 # Stations :
@@ -31,7 +49,7 @@ Par défaut, toutes les stations sont renvoyées.
 ## Exemple d'utilisation
 ```js
 const radio_discord = require("radio-discord.js");
-const radio = radio_discord.getStations();
+const radio = radio_discord.getStations(true|false);
 
 console.log(radio);
 ```
@@ -47,7 +65,7 @@ La fonction `lofi` vous permet de lancer une radio dans un salon vocal.
 * station - Lien de la station radio
 * selfDeaf - Bot en sourdine <true | false>
 * loop - Reconnecte la radio automatiquement s'il se déconnecte <true | false>
-* check_radio - Si la radio se déconnecte dans ce délai, alors le lien radio sera considéré comme invalide. `temps en seconde`
+* check_radio - Si la radio se déconnecte dans ce délai, alors le lien radio sera considérer comme invalide. `temps en seconde`
 * volume - Volume par défaut. (Quand le bot rejoint le salon vocal)
 
 # Exemple d'utilisation
@@ -96,3 +114,4 @@ console.log(stop);
 
 **En cas de problème :**
 * Discord: Zeleff_#1615
+* Github repo : https://github.com/ZeleffOff/radio-discord.js#readme
