@@ -1,6 +1,8 @@
 'use strict';
 
 const { joinVoiceChannel, createAudioPlayer, AudioPlayerStatus, createAudioResource, getVoiceConnection } = require("@discordjs/voice");
+const EventEmit = require("node:events");
+const Event = new EventEmit();
 
 const data =  {
     error: false,
@@ -12,7 +14,7 @@ _checkUpdate();
 exports.lofi = (interaction, options = { voiceChannel, station, selfDeaf, loop, check_radio, volume }) => {
     const { guild } = interaction;
     var { voiceChannel, station, selfDeaf = true, loop = false, check_radio = true, volume } = options;
-    if (check_radio) check_radio = (check_radio / 1000);
+    if (check_radio) check_radio = (check_radio * 1000);
 
     if (!interaction) throw new Error("L'argument interaction n'a pas été défini.");
     if (!voiceChannel) { data.error = true; data.code = "VOICE_CHANNEL"; data.message = "Le salon vocal est introuvable."; return data; };
@@ -44,8 +46,14 @@ exports.lofi = (interaction, options = { voiceChannel, station, selfDeaf, loop, 
     connection.subscribe(player);
 
     // Déconnexion de la radio
-    player.on(AudioPlayerStatus.Idle, () => {
-        if (Math.abs(started - Date.now()) < 10000) { data.error = true; data.code = "RADIO_INVALID"; data.message = "La radio s'est déconnecté avant " + check_radio + " secondes"; return data; }
+    player.on(AudioPlayerStatus.Idle, async () => {
+        if (Math.abs(started - Date.now()) < check_radio) { 
+            data.error = true; 
+            data.code = "RADIO_INVALID"; 
+            data.message = "La radio s'est déconnecté avant " + check_radio / 1000 + " secondes"; 
+
+                return Event.emit("error", data); 
+        }
 
         if (!loop) return;
 
@@ -57,13 +65,19 @@ exports.lofi = (interaction, options = { voiceChannel, station, selfDeaf, loop, 
         player.play(resource);
         connection.subscribe(player);
 
-        return true;
+        data.code = "LOOP";
+        data.message = "La radio a bien été reconnecté";
+
+        wait(5);
+        
+            return Event.emit("loop", { data, station, resource, player });
+
     });
 
-    data.code = "START";
-    data.message = "Radio lancée dans le salon " + voiceChannel.name;
-
-    return data;
+        data.code = "START";
+        data.message = "Radio lancée dans le salon " + voiceChannel.name;
+    
+        return data;
 
 };
 
@@ -123,6 +137,17 @@ exports.getStations = (random = false) => {
     if (random) { const get_random = stations[Math.floor(Math.random() * stations.length)]; return get_random; }
     else return stations;
 };
+
+exports.events = Event;
+
+function wait(sec) {
+    const date = Date.now();
+    let currentDate = null;
+    do {
+      currentDate = Date.now();
+    } while (currentDate - date < sec*1000);
+  }
+
 async function _checkUpdate() {
     if (!require("node-fetch")) return;
     const packageData = await require("node-fetch")(
